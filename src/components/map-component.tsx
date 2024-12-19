@@ -1,26 +1,27 @@
+'use client'
+
 import { useEffect, useRef, useState } from 'react'
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { api } from '../utils/api'
 import { toast } from "@/components/ui/use-toast"
 
 export function MapComponent() {
-  const mapContainer = useRef(null)
-  const map = useRef(null)
-  const [datasets, setDatasets] = useState([])
-  const [selectedDataset, setSelectedDataset] = useState('')
+  const mapContainer = useRef<HTMLDivElement>(null)
+  const map = useRef<maplibregl.Map | null>(null)
+  const [datasets, setDatasets] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (map.current) return; // Initialize map only once
-    map.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: 'https://tiles.olamaps.io/styles/default-light-standard/style.json', // Placeholder style
-      center: [0, 0],
-      zoom: 1
-    })
+    if (!map.current && mapContainer.current) {
+      map.current = new maplibregl.Map({
+        container: mapContainer.current,
+        style: 'https://tiles.olamaps.io/styles/default-light-standard/style.json',
+        center: [0, 0],
+        zoom: 1
+      })
+    }
   }, [])
 
   useEffect(() => {
@@ -31,61 +32,86 @@ export function MapComponent() {
     try {
       setLoading(true)
       const data = await api.datasets.getAll("generated")
-      setDatasets(data)
+      setDatasets(data.map((d: any) => ({ ...d, visible: false })))
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch datasets",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Failed to fetch datasets", variant: "destructive" })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleDatasetChange = async (value: string) => {
-    const previosDataset = selectedDataset;
-    try {
-      setLoading(true)
-      const tilesetData = await api.datasets.getTileset(value)
-      setSelectedDataset(value)
+  const toggleDataset = async (dataset: any) => {
+    const updated = datasets.map((d) => d.datasetName === dataset.datasetName ? { ...d, visible: !d.visible } : d)
+    setDatasets(updated)
 
-      toast({
-        title: "Success",
-        description: "Dataset loaded successfully",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load dataset",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
+    if (!dataset.visible) {
+      // Turn on: Add source/layer
+      const tilesetData = await api.tiles.getTileset(dataset.datasetName, "pbf", true, "http://localhost:3000").catch(() => null)
+      if (!tilesetData || !tilesetData.tiles?.length) return
+      addDatasetLayer(dataset.datasetName, tilesetData.tiles)
+    } else {
+      // Turn off: Remove layer/source
+      removeDatasetLayer(dataset.datasetName)
     }
+  }
+
+  const addDatasetLayer = (name: string, tiles: string[]) => {
+    if (!map.current) return
+    const sourceId = `source-${name}`
+    const layerId = `layer-${name}`
+
+    if (!map.current.getSource(sourceId)) {
+      map.current.addSource(sourceId, {
+        type: 'vector',
+        tiles,
+        minzoom: 0,
+        maxzoom: 14,
+      })
+    }
+
+    if (!map.current.getLayer(layerId)) {
+      map.current.addLayer({
+        id: layerId,
+        type: 'fill',
+        source: sourceId,
+        'source-layer': 'data',
+        paint: {
+          'fill-color': '#1D4ED8',
+          'fill-opacity': 0.6
+        }
+      })
+    }
+  }
+
+  const removeDatasetLayer = (name: string) => {
+    if (!map.current) return
+    const sourceId = `source-${name}`
+    const layerId = `layer-${name}`
+
+    if (map.current.getLayer(layerId)) map.current.removeLayer(layerId)
+    if (map.current.getSource(sourceId)) map.current.removeSource(sourceId)
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-4">
-        <Select onValueChange={handleDatasetChange} value={selectedDataset}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select a dataset" />
-          </SelectTrigger>
-          <SelectContent>
-            {datasets.map((dataset) => (
-              <SelectItem key={dataset.datasetName} value={dataset.datasetName}>
-                {dataset.datasetName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
         <Button onClick={fetchDatasets} disabled={loading}>
-          Refresh Datasets
+          {loading ? 'Loading...' : 'Refresh Datasets'}
         </Button>
       </div>
+      <ul className="space-y-2">
+        {datasets.map((d) => (
+          <li key={d.datasetName} className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={d.visible}
+              onChange={() => toggleDataset(d)}
+            />
+            <span>{d.datasetName}</span>
+          </li>
+        ))}
+      </ul>
       <div ref={mapContainer} className="w-full h-[600px] rounded-lg overflow-hidden" />
     </div>
   )
 }
-

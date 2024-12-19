@@ -1,18 +1,19 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { api } from '../utils/api'
+import { api } from "../utils/api"
 import { toast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { UploadCloud, RefreshCw } from "lucide-react"
 
 export function SpriteManager() {
-  const [folders, setFolders] = useState([])
-  const [folderName, setFolderName] = useState('')
-  const [iconName, setIconName] = useState('')
+  const [folders, setFolders] = useState<string[]>([])
+  const [folderName, setFolderName] = useState("")
+  const [iconName, setIconName] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -48,7 +49,7 @@ export function SpriteManager() {
         title: "Success",
         description: "Icon uploaded successfully",
       })
-      setIconName('')
+      setIconName("")
       setFile(null)
       fetchFolders()
     } catch (error) {
@@ -65,7 +66,7 @@ export function SpriteManager() {
   const handleGenerateSpritesheet = async (folder: string) => {
     try {
       setLoading(true)
-      await api.sprites.generateSpritesheet(folder, folder, '@1x')
+      await api.sprites.generateSpritesheet(folder, folder, "@1x")
       toast({
         title: "Success",
         description: "Spritesheet generated successfully",
@@ -82,15 +83,15 @@ export function SpriteManager() {
   }
 
   return (
-    <div className="space-y-8">
-      <Card>
+    <div className="min-h-screen bg-gradient-to-b from-white via-gray-50 to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-black p-6 space-y-8">
+      <Card className="border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Upload New Icon</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-200">Upload New Icon</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUploadIcon} className="space-y-4">
-            <div>
-              <Label htmlFor="folderName">Folder Name</Label>
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="folderName" className="text-gray-700 dark:text-gray-300 font-medium">Folder Name</Label>
               <Input
                 id="folderName"
                 value={folderName}
@@ -98,8 +99,8 @@ export function SpriteManager() {
                 placeholder="Enter folder name"
               />
             </div>
-            <div>
-              <Label htmlFor="iconName">Icon Name</Label>
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="iconName" className="text-gray-700 dark:text-gray-300 font-medium">Icon Name</Label>
               <Input
                 id="iconName"
                 value={iconName}
@@ -107,43 +108,56 @@ export function SpriteManager() {
                 placeholder="Enter icon name"
               />
             </div>
-            <div>
-              <Label htmlFor="iconFile">Upload Icon</Label>
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="iconFile" className="text-gray-700 dark:text-gray-300 font-medium">Upload Icon</Label>
               <Input
                 id="iconFile"
                 type="file"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
             </div>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Uploading...' : 'Upload Icon'}
+            <Button type="submit" disabled={loading} className="flex items-center gap-2">
+              {loading ? (
+                <span>Uploading...</span>
+              ) : (
+                <>
+                  <UploadCloud className="h-4 w-4" />
+                  <span>Upload Icon</span>
+                </>
+              )}
             </Button>
           </form>
         </CardContent>
       </Card>
-      <Card>
+      
+      <Card className="border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow">
         <CardHeader>
-          <CardTitle>Sprite Folders</CardTitle>
+          <CardTitle className="text-xl font-semibold text-gray-800 dark:text-gray-200">Sprite Folders</CardTitle>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
+        <CardContent className="overflow-x-auto">
+          <Table className="bg-white dark:bg-gray-950 rounded-md overflow-hidden">
+            <TableHeader className="bg-gray-100 dark:bg-gray-900">
               <TableRow>
-                <TableHead>Folder Name</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Folder Name</TableHead>
+                <TableHead className="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {folders.map((folder) => (
-                <TableRow key={folder}>
-                  <TableCell>{folder}</TableCell>
-                  <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                <TableRow
+                  key={folder}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
+                >
+                  <TableCell className="py-3 px-4 align-middle text-gray-800 dark:text-gray-200">{folder}</TableCell>
+                  <TableCell className="py-3 px-4 align-middle">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
                       onClick={() => handleGenerateSpritesheet(folder)}
                       disabled={loading}
                     >
+                      <RefreshCw className="h-4 w-4" />
                       Generate Spritesheet
                     </Button>
                   </TableCell>
@@ -156,4 +170,3 @@ export function SpriteManager() {
     </div>
   )
 }
-
