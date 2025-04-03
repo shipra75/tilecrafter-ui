@@ -17,7 +17,7 @@ export function MapComponent() {
     if (!map.current && mapContainer.current) {
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: 'https://tiles.olamaps.io/styles/default-light-standard/style.json',
+        style: 'https://api-stg-corp.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=FRKBJA14oyeVGdjooQxIXtH1JVODRyAJK3CcTubL',
         center: [0, 0],
         zoom: 1
       })
@@ -46,11 +46,10 @@ export function MapComponent() {
 
     if (!dataset.visible) {
       // Turn on: Add source/layer
-      const tilesetData = await api.tiles.getTileset(dataset.datasetName, "pbf", true, "http://localhost:3000").catch(() => null)
+      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "json", true, "http://localhost:3000").catch(() => null)
       if (!tilesetData || !tilesetData.tiles?.length) return
       addDatasetLayer(dataset.datasetName, tilesetData.tiles)
     } else {
-      // Turn off: Remove layer/source
       removeDatasetLayer(dataset.datasetName)
     }
   }

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.19:3300';
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://192.168.1.19:3300';
 
 export async function fetchWithErrorHandling(url: string, options: RequestInit = {}) {
   const response = await fetch(url, options);
@@ -55,5 +55,9 @@ export const api = {
       fetchWithErrorHandling(`${API_BASE_URL}/fonts/${fontstack}/${range}.pbf?allowedFonts=${allowedFonts}`),
     listFonts: () => fetchWithErrorHandling(`${API_BASE_URL}/fonts/list`),
   },
+  tiles: {
+    getTileSet:(datasetName:string, formate:string, withTileStatus:boolean, publicURL:string)=> 
+      fetchWithErrorHandling(`${API_BASE_URL}/tiles/${datasetName}.json?format=${formate}&withTileStats=${withTileStatus}`, {headers:{'x-public-url': publicURL,},})
+  }
 };
 
