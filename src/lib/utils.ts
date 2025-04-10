@@ -5,9 +5,9 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export function addLayerForGeometryType(map, value, geometryType) {
+export function addLayerForGeometryType(map:any, value:any, geometryType:any) {
     // Map geometry types to layer types
-    const layerTypeMap = {
+    const layerTypeMap:any = {
         Point: "circle",
         MultiPoint: "circle",
         LineString: "line",
