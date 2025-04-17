@@ -1,4 +1,4 @@
-FROM repo.corp.olacabs.com:5000/node:18
+FROM node:18
 
 WORKDIR /app
 
