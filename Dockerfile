@@ -14,6 +14,6 @@ RUN npm run build
 RUN echo 'OK' > /app/dist/health_check.html \
   && ln -s /app/dist/health_check.html /app/dist/health_check
 
-EXPOSE 5173
+EXPOSE 8080
 
 CMD ["npm","run", "start"]

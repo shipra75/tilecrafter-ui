@@ -21,7 +21,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   }
 });
 
-const PORT =  5173;
+const PORT =  8080;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
