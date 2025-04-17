@@ -16,4 +16,4 @@ RUN echo 'OK' > /app/dist/health_check.html \
 
 EXPOSE 8080
 
-CMD ["npm","run", "start"]
+CMD ["serve", "-s", "dist", "-l", "8080"]
