@@ -11,9 +11,13 @@ COPY . .
 
 RUN npm run build
 
-RUN echo 'OK' > /app/dist/health_check.html \
-  && ln -s /app/dist/health_check.html /app/dist/health_check
+RUN echo 'OK' > /app/dist/health_check.html
+
+RUN echo -e "/health_check\n  Content-Type: text/plain" > /app/dist/_headers
+
+HEALTHCHECK CMD curl -fs http://localhost:8080/health_check || exit 1
 
 EXPOSE 8080
 
-CMD ["serve", "-s", "dist", "-l", "8080"]
+CMD ["serve", "dist", "-l", "8080"]
+
