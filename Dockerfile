@@ -2,19 +2,20 @@ FROM artifactory.corp.olacabs.com:5000/node:18
 
 WORKDIR /app
 
-
-RUN set -ex; \
-    export DEBIAN_FRONTEND=noninteractive; \
-    rm /var/lib/apt/lists/* -vrf; \
-    apt-get clean all; \
-    apt-get -qq update; \
-    apt-get -y --no-install-recommends install \
+# Install dependencies
+RUN set -ex && \
+    export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
       build-essential \
       ca-certificates \
-      curl 
+      curl && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY package.json package-lock.json ./
+
 RUN npm config set engine-strict false
-RUN npm install 
+RUN npm install
 
 COPY . .
 
