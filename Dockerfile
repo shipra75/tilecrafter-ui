@@ -1,5 +1,7 @@
 FROM artifactory.corp.olacabs.com:5000/node:18
 
+ENV PORT 8080
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./
