@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 8080;
 app.get('/', (req, res) => {
     const indexPath = path.join(__dirname, 'dist', 'index.html'); // Adjust path as necessary
     fs.readFile(indexPath, 'utf-8', (err, data) => {
