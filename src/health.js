@@ -1,4 +1,3 @@
-// src/health.js
 export function healthCheck(req, res) {
     const healthData = {
         uptime: process.uptime(),
