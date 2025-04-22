@@ -31,6 +31,6 @@ app.get('/', (req, res) => {
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'src')));
 
-app.listen(PORT, () => {
-  console.log(`Frontend server is running on http://localhost:${PORT}`);
+app.listen(PORT,'0.0.0.0', () => {
+  console.log(`Frontend server is running on http://0.0.0.0:${PORT}`);
 });
