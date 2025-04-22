@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,15 +9,26 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Health check endpoint
+app.get('/health_check', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Main route
 app.get('/', (req, res) => {
-    const indexPath = path.join(__dirname, 'dist', 'index.html'); // Adjust path as necessary
-    fs.readFile(indexPath, 'utf-8', (err, data) => {
-      if (err) {
-        return res.status(500).send('Error reading index.html');
-      }
-    });
+  const indexPath = path.join(__dirname, 'dist', 'index.html');
+  fs.readFile(indexPath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('Error reading index.html:', err);
+      return res.status(500).send('Error reading index.html');
+    }
+    res.send(data);
   });
-  app.use(express.static(path.join(__dirname, 'dist')));
+});
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(path.join(__dirname, 'src')));
 
 app.listen(PORT, () => {
