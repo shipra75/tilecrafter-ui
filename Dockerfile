@@ -5,7 +5,6 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm config set engine-strict false
 RUN npm install --force
-RUN npm install -g serve
 
 COPY . .
 
