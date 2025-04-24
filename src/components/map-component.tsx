@@ -17,9 +17,9 @@ export function MapComponent() {
     if (!map.current && mapContainer.current) {
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: 'https://api-stg-corp.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=FRKBJA14oyeVGdjooQxIXtH1JVODRyAJK3CcTubL',
+        style: `https://api-stg-corp.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=bf6c4c66aad74a6e8ed0d816245d314c`,
         center: [0, 0],
-        zoom: 1
+        zoom: 1,
       })
     }
   }, [])
