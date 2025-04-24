@@ -31,7 +31,7 @@ export function MapComponent() {
   const fetchDatasets = async () => {
     try {
       setLoading(true)
-      const data = await api.datasets.getAll("generated")
+      const data = await api.datasets.getAll("uploaded")
       setDatasets(data.map((d: any) => ({ ...d, visible: false })))
     } catch (error) {
       toast({ title: "Error", description: "Failed to fetch datasets", variant: "destructive" })
