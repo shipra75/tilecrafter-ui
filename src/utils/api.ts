@@ -1,5 +1,5 @@
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://192.168.1.19:3300';
-
+const API_BASE_URL = 'https://ani-maps-tilecrafter-backend-8080a.stg.corp.olacabs.com';
+console.log('API_BASE_URL',API_BASE_URL)
 export async function fetchWithErrorHandling(url: string, options: RequestInit = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
