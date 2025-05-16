@@ -17,10 +17,13 @@ export function MapComponent() {
     if (!map.current && mapContainer.current) {
       map.current = new maplibregl.Map({
         container: mapContainer.current,
-        style: `https://api-stg-corp.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=bf6c4c66aad74a6e8ed0d816245d314c`,
+        style: `https://tiles.olamaps.io/styles/default-light-standard/style.json`,
         center: [0, 0],
         zoom: 1,
       })
+      map.current.on('load', () => {
+        console.log('Map is ready');
+      });
     }
   }, [])
 
@@ -31,7 +34,7 @@ export function MapComponent() {
   const fetchDatasets = async () => {
     try {
       setLoading(true)
-      const data = await api.datasets.getAll("uploaded")
+      const data = await api.datasets.getAll("generated")
       setDatasets(data.map((d: any) => ({ ...d, visible: false })))
     } catch (error) {
       toast({ title: "Error", description: "Failed to fetch datasets", variant: "destructive" })
@@ -41,44 +44,68 @@ export function MapComponent() {
   }
 
   const toggleDataset = async (dataset: any) => {
+    if (map.current) {
+      map.current.remove(); // destroy old map instance
+      map.current = null;
+    }
+    if (mapContainer.current) {
+      const newMap = new maplibregl.Map({
+        container: mapContainer.current,
+        style: 'https://tiles.olamaps.io/styles/default-light-standard/style.json',
+        center: [0, 0],
+        zoom: 1,
+      });
+  
+      newMap.on('load', async () => {
+        map.current = newMap;
+        console.log('Map reloaded');
     const updated = datasets.map((d) => d.datasetName === dataset.datasetName ? { ...d, visible: !d.visible } : d)
     setDatasets(updated)
 
     if (!dataset.visible) {
       // Turn on: Add source/layer
-      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "json", true, "http://localhost:3000").catch(() => null)
+ 
+      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "json", true, "http://localhost:3001").catch(() => null)
+      console.log('tilesetData ', tilesetData )
       if (!tilesetData || !tilesetData.tiles?.length) return
-      addDatasetLayer(dataset.datasetName, tilesetData.tiles)
+      addDatasetLayer(newMap, dataset.datasetName, tilesetData.tiles)
     } else {
       removeDatasetLayer(dataset.datasetName)
     }
   }
+      )}
+}
 
-  const addDatasetLayer = (name: string, tiles: string[]) => {
-    if (!map.current) return
+  const addDatasetLayer = (mapIntance: any, name: string, tiles: string[]) => {
+    if (!mapIntance.current) return
     const sourceId = `source-${name}`
     const layerId = `layer-${name}`
 
-    if (!map.current.getSource(sourceId)) {
-      map.current.addSource(sourceId, {
+    if (!mapIntance.current.getSource(sourceId)) {
+    console.log('map.current', map.current)
+     const source = mapIntance.current.addSource(sourceId, {
         type: 'vector',
         tiles,
         minzoom: 0,
         maxzoom: 14,
       })
+  console.log('source',source)
     }
-
-    if (!map.current.getLayer(layerId)) {
-      map.current.addLayer({
+console.log('layerId', layerId)
+    if (!mapIntance.current.getLayer(layerId)) {
+     const layer =  mapIntance.current.addLayer({
         id: layerId,
-        type: 'fill',
+        type: "fill",
         source: sourceId,
         'source-layer': 'data',
         paint: {
           'fill-color': '#1D4ED8',
           'fill-opacity': 0.6
-        }
+        },
+        minzoom: 0,
+        maxzoom: 14,
       })
+      console.log('layer', layer)
     }
   }
 
