@@ -19,11 +19,8 @@ export function MapComponent() {
         container: mapContainer.current,
         style: `https://tiles.olamaps.io/styles/default-light-standard/style.json`,
         center: [0, 0],
-        zoom: 1,
+        zoom: 1
       })
-      map.current.on('load', () => {
-        console.log('Map is ready');
-      });
     }
   }, [])
 
@@ -44,67 +41,54 @@ export function MapComponent() {
   }
 
   const toggleDataset = async (dataset: any) => {
-    if (map.current) {
-      map.current.remove(); // destroy old map instance
-      map.current = null;
-    }
-    if (mapContainer.current) {
-      const newMap = new maplibregl.Map({
-        container: mapContainer.current,
-        style: 'https://tiles.olamaps.io/styles/default-light-standard/style.json',
-        center: [0, 0],
-        zoom: 1,
-      });
-  
-      newMap.on('load', async () => {
-        map.current = newMap;
-        console.log('Map reloaded');
     const updated = datasets.map((d) => d.datasetName === dataset.datasetName ? { ...d, visible: !d.visible } : d)
     setDatasets(updated)
 
     if (!dataset.visible) {
       // Turn on: Add source/layer
- 
       const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "json", true, "http://localhost:3001").catch(() => null)
       console.log('tilesetData ', tilesetData )
       if (!tilesetData || !tilesetData.tiles?.length) return
-      addDatasetLayer(newMap, dataset.datasetName, tilesetData.tiles)
+      addDatasetLayer(dataset.datasetName, tilesetData.tiles)
     } else {
       removeDatasetLayer(dataset.datasetName)
     }
   }
-      )}
-}
 
-  const addDatasetLayer = (mapIntance: any, name: string, tiles: string[]) => {
-    if (!mapIntance.current) return
+  const addDatasetLayer = (name: string, tiles: string[]) => {
+    console.log('map', map)
+    if (!map.current) return
     const sourceId = `source-${name}`
     const layerId = `layer-${name}`
 
-    if (!mapIntance.current.getSource(sourceId)) {
-    console.log('map.current', map.current)
-     const source = mapIntance.current.addSource(sourceId, {
+    if (!map.current.getSource(sourceId)) {
+      const source = map.current.addSource(sourceId, {
         type: 'vector',
         tiles,
         minzoom: 0,
-        maxzoom: 14,
+        maxzoom: 12,
       })
-  console.log('source',source)
+      console.log('source1234', source)
     }
-console.log('layerId', layerId)
-    if (!mapIntance.current.getLayer(layerId)) {
-     const layer =  mapIntance.current.addLayer({
-        id: layerId,
-        type: "fill",
-        source: sourceId,
-        'source-layer': 'data',
-        paint: {
-          'fill-color': '#1D4ED8',
-          'fill-opacity': 0.6
-        },
-        minzoom: 0,
-        maxzoom: 14,
-      })
+
+    if (!map.current.getLayer(layerId)) {
+      const firstLayerId = map.current.getStyle().layers?.[0]?.id;
+    console.log('layerId', layerId)
+     const layer = map.current.addLayer({
+      id: layerId,
+      type: 'line',
+      source: sourceId,
+      'source-layer': '1747986498509map', // Must match name inside .pbf
+      paint: {
+        'line-color': '#EF4444',
+        'line-width': 2
+      },
+      layout: {
+        visibility: 'visible'
+      },
+      
+    }, firstLayerId);
+   
       console.log('layer', layer)
     }
   }
