@@ -46,7 +46,7 @@ export function MapComponent() {
 
     if (!dataset.visible) {
       // Turn on: Add source/layer
-      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "json", true, "http://localhost:3001").catch(() => null)
+      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "pbf", true, "http://localhost:3001").catch(() => null)
       console.log('tilesetData ', tilesetData )
       if (!tilesetData || !tilesetData.tiles?.length) return
       addDatasetLayer(dataset.datasetName, tilesetData.tiles)
