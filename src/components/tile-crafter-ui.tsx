@@ -19,7 +19,7 @@ export default function TileCrafterUI() {
           <TabsTrigger value="datasets" className="text-lg">Datasets</TabsTrigger>
           <TabsTrigger value="styles" className="text-lg">Styles</TabsTrigger>
           <TabsTrigger value="sprites" className="text-lg">Sprites</TabsTrigger>
-          {/* <TabsTrigger value="fonts" className="text-lg">Fonts</TabsTrigger> */}
+          <TabsTrigger value="fonts" className="text-lg">Fonts</TabsTrigger>
         </TabsList>
         <Card className="mt-6 border-none shadow-lg">
           <CardContent className="p-6">

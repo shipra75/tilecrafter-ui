@@ -39,32 +39,31 @@ export function MapComponent() {
       setLoading(false)
     }
   }
-
   const toggleDataset = async (dataset: any) => {
     const updated = datasets.map((d) => d.datasetName === dataset.datasetName ? { ...d, visible: !d.visible } : d)
     setDatasets(updated)
 
     if (!dataset.visible) {
       // Turn on: Add source/layer
-      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "pbf", true, "http://localhost:3001").catch(() => null)
+      const tilesetData = await api.tiles.getTileSet(dataset.datasetName, "pbf", true, "https://ani-maps-tilecrafter-backend-8080a.stg.corp.olacabs.com").catch(() => null)
       console.log('tilesetData ', tilesetData )
       if (!tilesetData || !tilesetData.tiles?.length) return
-      addDatasetLayer(dataset.datasetName, tilesetData.tiles)
+      addDatasetLayer(dataset.datasetName, tilesetData)
     } else {
       removeDatasetLayer(dataset.datasetName)
     }
   }
 
-  const addDatasetLayer = (name: string, tiles: string[]) => {
+  const addDatasetLayer = (name: string, tiles: any) => {
     console.log('map', map)
     if (!map.current) return
     const sourceId = `source-${name}`
     const layerId = `layer-${name}`
-
+    console.log(' tiles 4363',  tiles)
     if (!map.current.getSource(sourceId)) {
       const source = map.current.addSource(sourceId, {
         type: 'vector',
-        tiles,
+        tiles: tiles.tiles,
         minzoom: 0,
         maxzoom: 12,
       })
@@ -72,13 +71,12 @@ export function MapComponent() {
     }
 
     if (!map.current.getLayer(layerId)) {
-      const firstLayerId = map.current.getStyle().layers?.[0]?.id;
     console.log('layerId', layerId)
      const layer = map.current.addLayer({
       id: layerId,
       type: 'line',
       source: sourceId,
-      'source-layer': '1747986498509map', // Must match name inside .pbf
+      "source-layer": tiles.vector_layers[0].id, 
       paint: {
         'line-color': '#EF4444',
         'line-width': 2
@@ -87,12 +85,9 @@ export function MapComponent() {
         visibility: 'visible'
       },
       
-    }, firstLayerId);
-   
-      console.log('layer', layer)
+    });
     }
   }
-
   const removeDatasetLayer = (name: string) => {
     if (!map.current) return
     const sourceId = `source-${name}`
