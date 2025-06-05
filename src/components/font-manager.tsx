@@ -7,29 +7,33 @@ import { toast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function FontManager() {
-  const [fonts, setFonts] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [fonts, setFonts] = useState<any[]>([])
 
   useEffect(() => {
     fetchFonts()
   }, [])
 
+  useEffect(() => {
+    console.log("fonts updated:", fonts)
+  }, [])
+
   const fetchFonts = async () => {
     try {
-      setLoading(true)
-      const data = await api.fonts.listFonts()
-      setFonts(data)
+      const data = await api.fonts?.listFonts?.()
+      console.log('data', data)
+      if (!data) throw new Error("No fonts returned")
+      const fontList = Object.keys(data)
+    console.log('fontList', fontList)
+      setFonts(fontList)
     } catch (error) {
+      console.error("Fetch fonts error", error)
       toast({
         title: "Error",
         description: "Failed to fetch fonts",
         variant: "destructive",
       })
-    } finally {
-      setLoading(false)
     }
   }
-
   return (
     <Card>
       <CardHeader>
@@ -45,22 +49,24 @@ export function FontManager() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {fonts.map((font:any) => (
-              <TableRow key={font.split('/')[0]}>
-                <TableCell>{font.split('/')[0]}</TableCell>
-                <TableCell>{font.split('/')[1]}</TableCell>
-                <TableCell>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => api.fonts.getFont(font.split('/')[0], '0-255', font.split('/')[0])}
-                    disabled={loading}
-                  >
-                    View
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {fonts.map((font) => {
+              const [name, range] = typeof font === 'string' ? font.split('/') : ['Unknown', ''];
+              return (
+                <TableRow key={name}>
+                  <TableCell>{name}</TableCell>
+                  <TableCell>{range}</TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => api.fonts.getFont(name, '0-255', name)}
+                    >
+                      View
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </CardContent>

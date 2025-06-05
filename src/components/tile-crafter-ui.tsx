@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DatasetManager } from './dataset-manager'
 import { StyleManager } from './style-manager'
 import { SpriteManager } from './sprite-manager'
-// import { FontManager } from './font-manager'
+import { FontManager } from './font-manager'
 import { MapComponent } from './map-component'
 
 export default function TileCrafterUI() {
@@ -27,7 +27,7 @@ export default function TileCrafterUI() {
             <TabsContent value="datasets"><DatasetManager /></TabsContent>
             <TabsContent value="styles"><StyleManager /></TabsContent>
             <TabsContent value="sprites"><SpriteManager /></TabsContent>
-            {/* <TabsContent value="fonts"><FontManager /></TabsContent> */}
+            <TabsContent value="fonts"><FontManager /></TabsContent>
           </CardContent>
         </Card>
       </Tabs>
