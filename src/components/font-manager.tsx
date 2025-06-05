@@ -7,23 +7,17 @@ import { toast } from "@/components/ui/use-toast"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export function FontManager() {
-  const [fonts, setFonts] = useState<any[]>([])
+  const [fonts, setFonts] = useState<string[]>([])
 
   useEffect(() => {
     fetchFonts()
   }, [])
 
-  useEffect(() => {
-    console.log("fonts updated:", fonts)
-  }, [])
-
   const fetchFonts = async () => {
     try {
       const data = await api.fonts?.listFonts?.()
-      console.log('data', data)
       if (!data) throw new Error("No fonts returned")
       const fontList = Object.keys(data)
-    console.log('fontList', fontList)
       setFonts(fontList)
     } catch (error) {
       console.error("Fetch fonts error", error)
@@ -34,6 +28,7 @@ export function FontManager() {
       })
     }
   }
+
   return (
     <Card>
       <CardHeader>
@@ -49,10 +44,10 @@ export function FontManager() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {fonts.map((font) => {
-              const [name, range] = typeof font === 'string' ? font.split('/') : ['Unknown', ''];
+            {fonts.map((font, index) => {
+              const [name, range] = typeof font === 'string' ? font.split('/') : ['Unknown', '']
               return (
-                <TableRow key={name}>
+                <TableRow key={font}> {/* or `${font}-${index}` if needed */}
                   <TableCell>{name}</TableCell>
                   <TableCell>{range}</TableCell>
                   <TableCell>
